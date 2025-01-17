@@ -1,8 +1,34 @@
 name: octave_test
 
 services:
-  web:
-    build: .
+  api:
+    build: ./fastapi
+    environment:
+      DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+      API_URL: ${API_URL}
+      API_AUTH_TOKEN: ${API_AUTH_TOKEN}
+      API_AUTH_USER: ${API_AUTH_USER}
     ports:
       # host:container
       - 8765:8000
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17.2-alpine3.21
+    container_name: octave_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # host:container
+      - 6543:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  db-data:
+    driver: local
+    name: octave_db_data

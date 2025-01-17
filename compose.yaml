@@ -1,0 +1,8 @@
+name: octave_test
+
+services:
+  web:
+    build: .
+    ports:
+      # host:container
+      - 8765:8000

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./docker_remove.sh
+sh docker_remove.sh
 
 echo "Restarting Docker Compose..."
 

@@ -3,7 +3,7 @@
 # Nom des services/containers/images à gérer
 CONTAINERS=("octave_db" "octave_test-api-1")
 IMAGE="octave_test-api"
-VOLUME="octave_db-data"
+VOLUME="octave_db_data"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
 echo "Stopping Docker Compose services..."

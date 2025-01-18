@@ -4,13 +4,13 @@ services:
   api:
     build: ./fastapi
     environment:
-      DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+      DB_URL: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_CONTAINER_PORT}/${POSTGRES_DB}"
       API_URL: ${API_URL}
       API_AUTH_TOKEN: ${API_AUTH_TOKEN}
       API_AUTH_USER: ${API_AUTH_USER}
     ports:
       # host:container
-      - 8765:8000
+      - ${FAST_API_HOST_PORT}:${FAST_API_CONTAINER_PORT}
     depends_on:
       - postgres
 
@@ -23,10 +23,11 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       # host:container
-      - 6543:5432
+      - ${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: always
+    command: ["postgres", "-c", "log_statement=all"]
 
 volumes:
   db-data:

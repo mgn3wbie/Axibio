@@ -1,15 +1,16 @@
 from fastapi import FastAPI
 import requests
-import db_manager
-import os
+from database import Manager
 
 app = FastAPI()
 
-db_manager.create_missing_db_elements()
+
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World", "user" : os.getenv("POSTGRES_USER"), "password" : os.getenv("POSTGRES_PASSWORD")}
+    db_manager = Manager()
+    print("Table logs exists ? " + str(db_manager.create_missing_tables()))
+    return {"message": "Hello World"}
 
 
 @app.get("/hello/{name}")

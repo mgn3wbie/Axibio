@@ -1,29 +1,24 @@
 from fastapi import FastAPI
-import requests
 from database import Manager
+from octave_api import fetch_all_events
+from data_transform import process_octave_response_into_dict_list
+from data_transform import turn_camel_to_snake_case_for_dicts
+from models import Logs
 
 app = FastAPI()
-
-
 
 @app.get("/")
 async def root():
     db_manager = Manager()
-    print("Table logs exists ? " + str(db_manager.create_missing_tables()))
-    return {"message": "Hello World"}
 
+    db_manager.create_missing_tables()
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
-
-@app.get("/fetch_data")
-async def fetch_data():
-    api_url = "https://octave-api.sierrawireless.io/v5.0/axibio/event?path=/axibio/devices/gaiabox_005/eventlog"
-    headers = {"X-Auth-token": "7WtXx1NeizYcwuyVHzfXxTZXDhQnDy2Z", "X-Auth-User": "guest_axibio"}
-    response = requests.get(api_url, headers=headers)
+    response = fetch_all_events()
 
     if response.status_code == 200:
+        events_list = process_octave_response_into_dict_list(response.json())
+        events_list = turn_camel_to_snake_case_for_dicts(events_list)
+        db_manager.persist_items_from_model(events_list, Logs)
         return response.json()
     else:
         return {"error": "Failed to fetch data"}

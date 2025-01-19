@@ -10,22 +10,20 @@ class Logs(Base):
     __tablename__ = "logs"
     
     # primary key
-    id = Column(Integer, primary_key=True, index=True)    
-    
-    # id in octave api
-    octave_id = Column(String(50), unique=True, nullable=False)
-    stream_id = Column(String(50), nullable=False)
-    creator_id = Column(String(50), nullable=False)
-    last_editor_id = Column(String(50), nullable=False)
+    id = Column(String(50), primary_key=True, index=True)
+    stream_id = Column("streamId", String(50), nullable=False, index=True)
+    creator_id = Column("creatorId", String(50), nullable=False, index=True)
+    last_editor_id = Column("lastEditorId", String(50), nullable=False, index=True)
 
     metadata_ = Column("metadata", JSON, nullable=False, default={})
     # ts in ms, postgres Integers are limited to 2147483647
-    creation_date = Column(BigInteger, nullable=False)
-    last_edit_date = Column(BigInteger, nullable=False)
-    generated_date = Column(BigInteger, nullable=False)
+    creation_date = Column("creationDate", BigInteger, nullable=False, index=True)
+    last_edit_date = Column("lastEditDate", BigInteger, nullable=False, index=True)
+    generated_date = Column("generatedDate", BigInteger, nullable=False, index=True)
 
     tags = Column(JSON, nullable=False, default={})
     elems = Column(JSON, nullable=False, default={})
+
     # optional values
     location = Column(Text, nullable=True)
     hash = Column(Text, nullable=True)

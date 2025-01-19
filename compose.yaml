@@ -2,7 +2,7 @@ name: octave_test
 
 services:
   api:
-    build: ./fastapi
+    build: ./services/backend
     environment:
       DB_URL: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_CONTAINER_PORT}/${POSTGRES_DB}"
       API_URL: ${API_URL}

@@ -3,8 +3,9 @@ from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy.orm import declarative_base
  
 # all model classes must inherit from this
-print('creating Base')
 Base = declarative_base()
+
+# the models act as table schema and allow to map python objects to tables and vice-versa
 
 class Logs(Base):
     # postgres table name

@@ -1,5 +1,3 @@
-import json
-
 def _camel_to_snake(s):
     '''turn a CamelCase string into a snake_case one'''
     return ''.join(['_'+c.lower() if c.isupper() else c for c in s]).lstrip('_')

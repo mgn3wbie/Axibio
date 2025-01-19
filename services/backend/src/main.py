@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from database import Manager
-from octave_api import fetch_all_events
-import data_transform as data
-import models
+from src.api.octave_api import fetch_all_events
+from src.db.database import Manager
+import src.utils.data_transform as data
+import src.db.models as models
 
 app = FastAPI()
 

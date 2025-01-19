@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
-import models
+import src.db.models as models
 import jsons
 import json
 import os

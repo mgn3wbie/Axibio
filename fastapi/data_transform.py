@@ -14,6 +14,7 @@ def process_octave_response_into_dict_list(json_data):
         i += 1
     return dict_list
 
+# todo : make it recursive ? 
 def turn_camel_to_snake_case_for_dicts(dict_list):
     '''iterates over the dict_list and turns their keys into snake_case'''
     new_dict_list = []
@@ -23,3 +24,13 @@ def turn_camel_to_snake_case_for_dicts(dict_list):
             temp_dict[_camel_to_snake(key)] = dict[key]
         new_dict_list.append(temp_dict)
     return new_dict_list
+
+def flatten_dict_depth(nested_dict: dict) -> dict:
+    '''flattens a dict with nested dicts to have all values at same level'''
+    new_dict = {}
+    for key, value in nested_dict.items():
+        if isinstance(value, dict):
+            new_dict.update(flatten_dict_depth(value))
+        else:
+            new_dict.update({key: value})
+    return new_dict

@@ -1,29 +1,27 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 import models
+import jsons
+import json
 import os
+from pprint import pprint
 
 class Manager:
     # creates db engine
     engine = create_engine(os.environ["DB_URL"])
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-    def _get_connection(self):
-        print("Attempting to connect to db")
-        try:
-            db_connection = self.engine.connect()
-            print("Connection succeeded !")
-        except Exception as e:
-            print("Connection failed : " + str(e))
-        return db_connection
+    def persist_items_from_model(self, items, cls):
+        '''takes a list of dicts and persists them to the db as the objects they represent'''
+        for item in items:
+            log = jsons.loads(json.dumps(item), cls=cls)
+            pprint(vars(log))
+            self.session.merge(log)
+        self.session.commit()
 
-
-    # generates all tables in the db (doesnt recreate existing)
     def create_missing_tables(self):
-        connection = self._get_connection()
-        models.Base.metadata.create_all(bind=connection)
-
-        connection.commit()
-        # return inspect(connection).has_table("logs")
-
-    # def has_table_logs(self):
-    #     connection = self._get_connection()
+        '''generates all tables in the db (doesnt recreate existing)'''
+        models.Base.metadata.create_all(bind=self.engine)
+        self.session.commit()
+        return inspect(self.engine).has_table("logs")

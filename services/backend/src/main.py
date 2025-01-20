@@ -52,10 +52,10 @@ async def login_for_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-
+# todo : find a way to disconnect a user
 @app.post("/logout")
 async def logout() -> Token:
-    return Token(access_token=None, token_type="bearer")
+    return Token(access_token="", token_type="bearer")
 
 
 @app.get("/users/me/", response_model=User)

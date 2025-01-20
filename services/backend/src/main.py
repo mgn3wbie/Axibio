@@ -10,9 +10,30 @@ from src.db.database import DBManager
 import src.utils.data_transform as data
 import src.db.models as models
 from src.authentication.token import User, authenticate_user
+from src.authentication.password import get_password_hash
 
+
+oauth_current_user = Annotated[User, Depends(get_current_active_user)]
+DBManager.create_missing_tables()
 
 app = FastAPI()
+
+@app.post("/signin")
+async def signin_for_new_user(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> Token:
+    user = models.User(email=form_data.username, hashed_password=get_password_hash(form_data.password), disabled=False)
+    # only create user if axibio and not already created
+    # todo : use an email to generate password
+    if user.email.endswith("@axibio.com") and DBManager.get_user_for_email(user.email) is None:
+        DBManager.add_item_if_doesnt_exist(user, "email")
+        return await login_for_access_token(form_data)
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Either you are not allowed to register to this platform, or you already have an account",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
 
 @app.post("/token")
 async def login_for_access_token(
@@ -31,14 +52,17 @@ async def login_for_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-oauth_current_user = Annotated[User, Depends(get_current_active_user)]
+
+@app.post("/logout")
+async def logout() -> Token:
+    return Token(access_token=None, token_type="bearer")
+
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(
     current_user: oauth_current_user,
 ):
     return current_user
-
 
 @app.get("/users/me/items/")
 async def read_own_items(
@@ -48,20 +72,14 @@ async def read_own_items(
 
 
 
-@app.get("/")
+@app.get("/fetch_data")
 async def root():
-
-
-    DBManager.create_missing_tables()
-
-    DBManager.create_fake_users()
-
     response = fetch_all_events()
 
     if response.status_code == 200:
         events_list = data.process_octave_response_into_dict_list(response.json())
         events_list = data.turn_camel_to_snake_case_for_dicts(events_list)
-        DBManager.persist_dicts_from_model(events_list, models.Logs)
+        DBManager.add_or_update_dicts_from_model_with_ids(events_list, models.Logs)
         
         energy_events_results = DBManager.get_all_events_with_name("energy_inc")
         events = []
@@ -71,7 +89,7 @@ async def root():
             result.update({"id": id, "name": "energy_inc"})
             events.append(result)
         events = data.turn_camel_to_snake_case_for_dicts(events)
-        DBManager.persist_dicts_from_model(events, models.Event)
+        DBManager.add_or_update_dicts_from_model_with_ids(events, models.Event)
 
 
         return response.json()

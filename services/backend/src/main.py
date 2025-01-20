@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.octave_api import fetch_all_events
 from src.db.database import DBManager
@@ -15,6 +16,19 @@ oauth_current_user = Annotated[User, Depends(get_current_active_user)]
 DBManager.create_missing_tables()
 
 app = FastAPI()
+
+# middleware to allow requests from frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://frontend:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def homepage():
+    return {"message": "Welcome to the homepage"}
 
 @app.post("/signin")
 async def signin_for_new_user(

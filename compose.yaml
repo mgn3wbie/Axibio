@@ -8,6 +8,7 @@ services:
       API_URL: ${API_URL}
       API_AUTH_TOKEN: ${API_AUTH_TOKEN}
       API_AUTH_USER: ${API_AUTH_USER}
+      SECRET_KEY_JWT: ${SECRET_KEY_JWT}
     ports:
       # host:container
       - ${FAST_API_HOST_PORT}:${FAST_API_CONTAINER_PORT}

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Nom des services/containers/images à gérer
-CONTAINERS=("octave_db" "octave_test-api-1")
-IMAGE="octave_test-api"
+CONTAINERS=("octave_db" "octave_test-api-1" "octave_test-web-1")
+IMAGES=("octave_test-api" "octave_test-web")
 VOLUME="octave_db_data"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
@@ -14,25 +14,27 @@ for container in "${CONTAINERS[@]}"; do
   if docker ps -a --format "{{.Names}}" | grep -q "^$container$"; then
     docker rm -f "$container"
     echo "Removed container: $container"
-  else
-    echo "Container $container does not exist."
+  # else
+  #   echo "Container $container does not exist."
   fi
 done
 
 echo "Removing specified image..."
-if docker images --format "{{.Repository}}" | grep -q "^$IMAGE$"; then
-  docker rmi "$IMAGE" --force
-  echo "Removed image: $IMAGE"
-else
-  echo "Image $IMAGE does not exist."
-fi
+for image in "${IMAGES[@]}"; do
+  if docker images --format "{{.Repository}}" | grep -q "^$image$"; then
+    docker rmi "$image" --force
+    echo "Removed image: $image"
+  # else
+  #   echo "Image $image does not exist."
+  fi
+done
 
 echo "Removing specified volume..."
 if docker volume ls --format "{{.Name}}" | grep -q "^$VOLUME$"; then
   docker volume rm "$VOLUME"
   echo "Removed volume: $VOLUME"
-else
-  echo "Volume $VOLUME does not exist."
+# else
+#   echo "Volume $VOLUME does not exist."
 fi
 
 echo "Done, Docker Compose services have been stopped and removed."

@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
+from passlib.context import CryptContext
 from jwt.exceptions import InvalidTokenError
 import jwt
 
@@ -9,13 +10,7 @@ from typing import Annotated
 import os
 
 from src.db.database import DBManager
-from src.auth.auth_process import verify_password
-
 import src.db.models as models
-
-from passlib.context import CryptContext
-
-
 
 # secret key provided from .env
 SECRET_KEY = os.environ["SECRET_KEY_JWT"]

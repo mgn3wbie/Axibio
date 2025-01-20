@@ -1,6 +1,19 @@
 name: octave_test
 
 services:
+  web:
+    build: ./services/frontend
+    environment:
+      FAST_API_CONTAINER_PORT: ${FAST_API_CONTAINER_PORT}
+    ports:
+      # host:container
+      - ${REACT_HOST_PORT}:${REACT_CONTAINER_PORT}
+    stdin_open: true
+    tty: true
+    command: npm start
+    depends_on:
+      - api
+
   api:
     build: ./services/backend
     environment:

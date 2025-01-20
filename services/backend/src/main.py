@@ -4,13 +4,11 @@ from datetime import timedelta
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.authentication.token import Token, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
 from src.api.octave_api import fetch_all_events
 from src.db.database import DBManager
+from src.auth.auth_process import *
 import src.utils.data_transform as data
 import src.db.models as models
-from src.authentication.token import User, authenticate_user
-from src.authentication.password import get_password_hash
 
 
 oauth_current_user = Annotated[User, Depends(get_current_active_user)]
@@ -33,7 +31,6 @@ async def signin_for_new_user(
         detail="Either you are not allowed to register to this platform, or you already have an account",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
 
 @app.post("/token")
 async def login_for_access_token(

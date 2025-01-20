@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, JSON, String, Text
+from sqlalchemy import Column, Integer, BigInteger, Boolean, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy.orm import declarative_base
  
@@ -45,3 +45,13 @@ class Event(Base):
     reg_ws = Column("regWs", Integer, nullable=True, index=True)
     volts = Column("volts", Integer, nullable=True, index=True)
     period = Column("period", Integer, nullable=True, index=True)
+
+class User(Base):
+    # postgres table name
+    __tablename__ = "users"
+
+    id = Column("id", Integer, primary_key=True, index=True, autoincrement=True)
+    email = Column("email", String(250), nullable=False, index=True, unique=True)
+    hashed_password = Column("password", Text, nullable=False, index=False)
+    disabled = Column("disabled", Boolean, nullable=False, index=True, default=False)
+    

@@ -4,45 +4,53 @@ from datetime import timedelta
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.authentication.token import Token, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
 from src.api.octave_api import fetch_all_events
 from src.db.database import DBManager
 import src.utils.data_transform as data
+import src.auth.auth_process as auth
 import src.db.models as models
-from src.authentication.token import User, authenticate_user
 
 
 app = FastAPI()
 
+@app.post("/signin")
+async def signin(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> auth.Token:
+    if form_data.username.endswith("@axibio.com") and DBManager.get_user_for_email(form_data.username) is None:
+        user_model = models.User(email=form_data.username, hashed_password=auth.get_password_hash(form_data.password), disabled=False)
+        DBManager.persist_item(user_model)
+    
+
 @app.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-) -> Token:
-    user = authenticate_user(form_data.username, form_data.password)
+) -> auth.Token:
+    user = auth.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
+    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth.create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return auth.Token(access_token=access_token, token_type="bearer")
 
-oauth_current_user = Annotated[User, Depends(get_current_active_user)]
+oauth_current_user = Annotated[auth.User, Depends(auth.get_current_active_user)]
 
-@app.get("/users/me/", response_model=User)
+@app.get("/users/me/", response_model=auth.User)
 async def read_users_me(
-    current_user: oauth_current_user,
+    current_user: Annotated[auth.User, Depends(auth.get_current_active_user)],
 ):
     return current_user
 
 
 @app.get("/users/me/items/")
 async def read_own_items(
-    current_user: oauth_current_user,
+    current_user: Annotated[auth.User, Depends(auth.get_current_active_user)],
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
 

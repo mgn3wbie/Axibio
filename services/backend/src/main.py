@@ -30,8 +30,8 @@ app.add_middleware(
 def homepage():
     return {"message": "Welcome to the homepage"}
 
-@app.post("/signin")
-async def signin_for_new_user(
+@app.post("/register")
+async def register_new_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = models.User(email=form_data.username, hashed_password=get_password_hash(form_data.password), disabled=False)
@@ -46,7 +46,7 @@ async def signin_for_new_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-@app.post("/token")
+@app.post("/login")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:

@@ -12,3 +12,5 @@ COPY . .
 EXPOSE 3000
 
 CMD ["npm", "start"]
+# dev purposes only, to keep container open and explore it
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

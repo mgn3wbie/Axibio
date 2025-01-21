@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Nom des services/containers/images à gérer
-CONTAINERS=("octave_db" "octave_test-api-1" "octave_test-web-1")
+CONTAINERS=("octave_test_db" "octave_test_backend" "octave_test_frontend")
 IMAGES=("octave_test-api" "octave_test-web")
 VOLUME="octave_db_data"
 DOCKER_COMPOSE_FILE="docker-compose.yml"

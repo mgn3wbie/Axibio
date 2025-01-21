@@ -16,10 +16,10 @@ function Homepage() {
     const email = localStorage.getItem('email');
     return (
         <div>
-        <h1>Welcome to the Homepage</h1>
+        <h1>Welcome to the Homepage {process.env.REACT_APP_BACKEND_URL}</h1>
         {userData && (
             <p>
-            Welcome {username}, {email} to the homepage!
+            Welcome to the homepage {email.substring(0, email.indexOf('@'))} - {process.env.REACT_APP_BACKEND_URL}!
             </p>
         )}
         </div>

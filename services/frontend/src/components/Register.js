@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 function Register() {
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
@@ -10,12 +9,12 @@ function Register() {
     const handleRegister = () => {
         // Send registration request to the backend
         axios
-        .post('http://localhost:8000/register', { username, email, password })
+        .post('http://localhost:8000/register', { email, password })
         .then(response => {
             setMessage(response.data.message);
-            const { username, email, token } = response.data;
-            localStorage.setItem('username', username);
-            localStorage.setItem('email', email);
+            const { email, token } = response.data;
+            // oauth2 wants a username in the payload
+            localStorage.setItem('username', email);
             localStorage.setItem('token', token);
             // Redirect to homepage using navigate
             navigate('/'); // Replace '/' with the homepage URL if needed
@@ -29,12 +28,6 @@ function Register() {
         <div>
         <h2>Register</h2>
         <div>
-        <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-        />
         <input
         type="email"
         placeholder="Email"

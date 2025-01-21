@@ -10,12 +10,11 @@ function Login() {
     const handleLogin = () => {
         // Send login request to the backend
         axios
-        .post('http://localhost:8000/login', { email, password })
+        .post(`${process.env.REACT_APP_BACKEND_URL}/login`, { email, password })
         .then(response => {
             setMessage(response.data.message);
-            const { username, email, token } = response.data;
-            localStorage.setItem('username', username);
-            localStorage.setItem('email', email);
+            const { email, token } = response.data;
+            localStorage.setItem('username', email);
             localStorage.setItem('token', token);
             // Redirect to homepage using navigate
             navigate('/'); // Replace '/' with the homepage URL if needed
@@ -26,25 +25,33 @@ function Login() {
                 setMessage('Error logging in. Please try again.');
             });
         };
+        // TODO: DRY up with Register
         return (
-            <div>
-            <h2>Login</h2>
-            <div>
-            <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            />
-            <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            />
-            <button onClick={handleLogin}>Login</button>
-            {message && <p>{message}</p>}
-            </div>
+            <div className="center-container">
+                <div id="login-form">
+                    <h2>Login</h2>
+                    <div className="form-group">
+                        <label htmlFor="email">E-mail address</label>
+                        <input
+                        id="email"
+                        type="email"
+                        placeholder="example@email.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                        type="password"
+                        placeholder="*******"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <button className="formButton" onClick={handleLogin}>Login</button>
+                    {message && <p>{message}</p>}
+                </div>
             </div>
         );
     }

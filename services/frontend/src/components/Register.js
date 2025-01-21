@@ -9,7 +9,7 @@ function Register() {
     const handleRegister = () => {
         // Send registration request to the backend
         axios
-        .post('http://localhost:8000/register', { email, password })
+        .post(`${process.env.REACT_APP_BACKEND_URL}/register`, { email, password })
         .then(response => {
             setMessage(response.data.message);
             const { email, token } = response.data;
@@ -25,25 +25,33 @@ function Register() {
         });
     };
     return (
-        <div>
-        <h2>Register</h2>
-        <div>
-        <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        />
-        <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        />
-        <button onClick={handleRegister}>Register</button>
-        {message && <p>{message}</p>}
-        </div>
-        </div>
+        // TODO: DRY up with Login
+        <div className="center-container">
+                <div id="login-form">
+                    <h2>Login</h2>
+                    <div className="form-group">
+                        <label htmlFor="email">E-mail address</label>
+                        <input
+                        id="email"
+                        type="email"
+                        placeholder="example@email.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                        type="password"
+                        placeholder="*******"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <button className="formButton" onClick={handleRegister}>Register</button>
+                    {message && <p>{message}</p>}
+                </div>
+            </div>
     );
 }
 export default Register;

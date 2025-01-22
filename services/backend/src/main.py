@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.octave_api import fetch_all_events
+import src.api.octave_api as octave_api
 from src.db.database import DBManager
 from src.auth.auth_process import *
 import src.utils.data_transform as data
@@ -71,11 +71,11 @@ async def read_users_me(
     return current_user
 
 
-@app.get("/data/refresh")
+@app.post("/data/refresh")
 async def data_refresh(
     current_user: oauth_current_user,
 ):
-    response = fetch_all_events()
+    response = octave_api.fetch_all_events()
 
     if response.status_code == 200:
         events_list = data.process_octave_response_into_dict_list(response.json())
@@ -83,13 +83,6 @@ async def data_refresh(
         DBManager.add_or_update_dicts_from_model_with_ids(events_list, models.Logs)
 
         energy_events_results = DBManager.get_all_logs_with_event_name("energy_inc")
-        # events = []
-        # for id, event_data in energy_events_results:
-
-        #     result = data.flatten_dict_depth(event_data)
-        #     result.update({"id": id, "name": "energy_inc"})
-        #     events.append(result)
-        # events = data.turn_camel_to_snake_case_for_dicts(events)
         events = data.turn_logs_into_energy_events(energy_events_results)
         DBManager.add_or_update_dicts_from_model_with_ids(events, models.Event)
         return {"message": "succesfully refreshed data"}
@@ -98,8 +91,9 @@ async def data_refresh(
 
 # TODO: handle errors from db fetch
 @app.get("/data/events")
-async def data_events(
+async def get_events(
     current_user: oauth_current_user,
 ):
-    energy_events = DBManager.get_all_energy_events()
-    return energy_events.json()
+    results = DBManager.get_all_energy_events()
+    json_events = data.turn_energy_events_query_results_into_json(results)
+    return json_events

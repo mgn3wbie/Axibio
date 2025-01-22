@@ -33,6 +33,25 @@ def flatten_dict_depth(nested_dict: dict) -> dict:
             new_dict.update({key: value})
     return new_dict
 
+def turn_energy_events_query_results_into_json(results):
+    '''turns query results into json'''
+    events = [row[0] for row in results]
+    json_events = [
+        {
+            "id": event.id,
+            "name": event.name,
+            "seq": event.seq,
+            "ts": event.ts.isoformat(),
+            "temp": event.temp,
+            "bat_ws": event.bat_ws,
+            "reg_ws": event.reg_ws,
+            "volts": event.volts,
+            "period": event.period,
+        }
+        for event in events
+    ]
+    return json_events
+
 def turn_logs_into_energy_events(energy_event_logs):
     '''takes the result of a query and turns it into a list of dict represented events'''
     events = []

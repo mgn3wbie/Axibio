@@ -1,25 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-function LogButtons() {
-    if (localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined) {
-        return (
-            <div className="logbuttons">
-                {/* TODO : check how to logout user */}
-                <Link to="/data"><button className="padded-button">See the data</button></Link>
-                <Link to="/logout"><button className="padded-button">Log Me Out</button></Link>
-            </div>
-        );
-    }
-    return (
-        <div className="logbuttons">
-            <Link to="/register"><button className="padded-button">Register Me</button></Link>
-            <Link to="/login"><button className="padded-button">Log Me In</button></Link>
-        </div>
-    );
-}
-
-function Homepage() {
+function DataViz() {
     const [userData, setUserData] = useState(null);
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -38,9 +20,7 @@ function Homepage() {
         .then(response => {
             if (!response.ok) {
                 if (response.status === 401) {
-                    console.log("Unauthorized. You need to login...");
-                    localStorage.clear();
-                    setUserData(null);
+                    console.log("Unauthorized. You need to login or you don't have the rights to access this page...");
                 }
                 throw new Error("Failed to fetch user data");
             }
@@ -51,7 +31,7 @@ function Homepage() {
     }, []);
     return (
         <div>
-            <h1>Welcome to Axibio Technical Test</h1>
+            <h2>Data Vizualisation of energy events</h2>
             
             {userData ? (
                 <p id="homePageParagraph">
@@ -61,8 +41,7 @@ function Homepage() {
                 <p id="homePageParagraph">You are not logged in. Please log in to continue.</p>
             )}
             
-            <LogButtons />
         </div>
     );
 }
-export default Homepage;
+export default DataViz;

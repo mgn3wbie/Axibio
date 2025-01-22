@@ -5,6 +5,7 @@ import Register from './components/Register';
 import Homepage from './components/Homepage';
 import Navbar from './components/Navbar';
 import Logout from './components/Logout';
+import DataViz from './components/DataViz';
 import './App.css'; // Import the styles.css file
 
 // main application component and configuration of the routes using `react-router-dom`.
@@ -12,13 +13,14 @@ function App() {
   return (
     <Router>
     <Navbar />
-    <div className="center-container">
-    <Routes>
-    <Route path="/" element={<Homepage />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/logout" element={<Logout />} />
-    </Routes>
+      <div className="center-container">
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/data" element={<DataViz />} />
+      </Routes>
     </div>
     </Router>
   );

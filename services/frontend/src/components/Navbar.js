@@ -7,9 +7,16 @@ function Navbar() {
         <li>
         <Link to="/">Home</Link>
         </li>
+        {
+            localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined
+            &&
+            <li>
+                <Link to="/data">Data</Link>
+            </li>
+        }
         </ul>
             {
-                localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined?
+                localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined ?
                 <ul className="navRight">
                     <li><Link to="/logout">Logout</Link></li>
                 </ul>

@@ -5,12 +5,14 @@ import Homepage from './components/Homepage';
 import Navbar from './components/Navbar';
 import Logout from './components/Logout';
 import DataViz from './components/DataViz';
+import { AuthProvider } from './utils/AuthContext'
 import './App.css'; // Import the styles.css file
 
 // main application component and configuration of the routes using `react-router-dom`.
 function App() {
   return (
     <Router>
+    <AuthProvider>
     <Navbar />
       <div className="center-container">
       <Routes>
@@ -20,6 +22,7 @@ function App() {
         <Route path="/data" element={<DataViz />} />
       </Routes>
     </div>
+    </AuthProvider>
     </Router>
   );
 }

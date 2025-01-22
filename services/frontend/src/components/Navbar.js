@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../utils/AuthContext';
+
 function Navbar() {
+    const { isLoggedIn } = useAuth();
     return (
         <nav className="navbar">
         <ul>
@@ -8,23 +11,19 @@ function Navbar() {
         <Link to="/">Home</Link>
         </li>
         {
-            localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined
-            &&
-            <li>
-                <Link to="/data">Data</Link>
-            </li>
+            isLoggedIn && ( <li><Link to="/data">Data</Link></li> )
         }
         </ul>
             {
-                localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined ?
+                isLoggedIn ? (
                 <ul className="navRight">
                     <li><Link to="/logout">Logout</Link></li>
                 </ul>
-                :
+                ) : (
                 <ul className="navRight">
                 <li><Link to="/auth">Auth</Link></li>
                 </ul>
-            }
+            )}
         
         </nav>
     );

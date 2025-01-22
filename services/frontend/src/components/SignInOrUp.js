@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../utils/AuthContext';
+
 function SignInOrUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
     const AuthAction = {
         LOGIN: "login",
         SIGNUP: "signup",
@@ -22,8 +25,8 @@ function SignInOrUp() {
         .post(`${process.env.REACT_APP_BACKEND_URL}${authAction === AuthAction.LOGIN ? "/login" : "/register"}` , formData)
         .then(response => {
             const token = response.data.token_type+" "+response.data.access_token;
-            // save the token in local storage
-            localStorage.setItem('token', token);
+            // save the token in local storage through Auth context
+            login(token)
             navigate('/data');
         })
         .catch(error => {

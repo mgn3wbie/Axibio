@@ -2,38 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import JsonTable from './JsonTable';
+import { getTokenOrRedirect, handleRequestFailure } from '../utils/RequestsHelpers';
 
 function DataViz() {
     const [errorMessage, setErrorMessage] = useState('');
     const [eventData, setEventData] = useState(null);
     const navigate = useNavigate();
 
-    const getTokenOrRedirect = () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate("/");
-        }
-        return token;
-    };
-
-    const handleRequestFailure = (error, setErrorMessage) => {
-        if (error.response) {
-            setErrorMessage(error.response.data.detail || "Error while refreshing data.");
-        } else if (error.request) {
-            setErrorMessage("No response from the server. Please try again.");
-        } else {
-            setErrorMessage("Unexpected error occurred. Please try again.");
-        }
-        if (error.response.status === 401) {
-            localStorage.clear();
-            setTimeout(() => {
-                navigate("/");
-            }, 3000);
-        }
-    };
-
     const handleRefresh = () => {
-        const token = getTokenOrRedirect();
+        const token = getTokenOrRedirect(useNavigate);
 
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/data/refresh`, null, {
             headers: {
@@ -45,7 +22,7 @@ function DataViz() {
             // Any error is caught in the block below
             fetchData(); 
         })
-        .catch(error => handleRequestFailure(error, setErrorMessage));
+        .catch(error => handleRequestFailure(error, setErrorMessage, useNavigate));
     };
 
     const fetchData = () => {

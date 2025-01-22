@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../utils/AuthContext';
 
 function LogButtons() {
-    if (localStorage.getItem('token') !== null && localStorage.getItem('token') !== undefined) {
+    const { isLoggedIn } = useAuth();
+
+    if (isLoggedIn) {
         return (
             <div className="logbuttons">
                 <Link to="/data"><button className="padded-button">See the data</button></Link>
@@ -18,32 +22,29 @@ function LogButtons() {
 
 function Homepage() {
     const [userData, setUserData] = useState(null);
+    const { isLoggedIn } = useAuth();
+
     useEffect(() => {
-        const token = localStorage.getItem('token');
         // avoid the request if no token is set
-        if (!token) {
+        if (!isLoggedIn) {
             return;
         }
         
+        const token = localStorage.getItem('token');
         // Fetch user data from the API endpoint
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/users/me`, {
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/me`, {
             headers: {
                 Authorization: token,
             },
         })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("Unauthorized. You need to login...");
-                    localStorage.clear();
-                    setUserData(null);
-                }
-                throw new Error("Failed to fetch user data");
+        .then(response => setUserData(response.data))
+        .catch(error => {
+            if (error.response.status === 401) {
+                console.log("Unauthorized. You need to login...");
+                localStorage.clear();
+                setUserData(null);
             }
-            return response.json();
-        })
-        .then(data => setUserData(data))
-        .catch(error => console.error(error));
+        });
     }, []);
     return (
         <div>

@@ -1,66 +1,65 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import JsonTable from './JsonTable';
 
 function DataViz() {
     const [errorMessage, setErrorMessage] = useState('');
-    const [eventData, setEventData] = useState(null); // Stockage des données
+    const [eventData, setEventData] = useState(null);
+    const navigate = useNavigate();
 
-    // Fonction pour rafraîchir les données
-    const handleRefresh = () => {
+    const getTokenOrRedirect = () => {
         const token = localStorage.getItem('token');
         if (!token) {
-            console.log("No token found. User is not logged in.");
-            return;
+            navigate("/");
         }
-
-        axios
-            .post(`${process.env.REACT_APP_BACKEND_URL}/data/refresh`, null, {
-                headers: {
-                    Authorization: token,
-                },
-            })
-            .then(response => {
-                console.log("Data refreshed successfully");
-                fetchData(); // Rafraîchir les données affichées après le succès
-            })
-            .catch(error => {
-                if (error.response) {
-                    setErrorMessage(error.response.data.detail || "Error while refreshing data.");
-                } else if (error.request) {
-                    setErrorMessage("No response from the server. Please try again.");
-                } else {
-                    setErrorMessage("Unexpected error occurred. Please try again.");
-                }
-            });
+        return token;
     };
 
-    // Fonction pour récupérer les données utilisateur
-    const fetchData = () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.log("No token found. User is not logged in.");
-            return;
+    const handleRequestFailure = (error, setErrorMessage) => {
+        if (error.response) {
+            setErrorMessage(error.response.data.detail || "Error while refreshing data.");
+        } else if (error.request) {
+            setErrorMessage("No response from the server. Please try again.");
+        } else {
+            setErrorMessage("Unexpected error occurred. Please try again.");
         }
+        if (error.response.status === 401) {
+            localStorage.clear();
+            setTimeout(() => {
+                navigate("/");
+            }, 3000);
+        }
+    };
 
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/data/events`, {
+    const handleRefresh = () => {
+        const token = getTokenOrRedirect();
+
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/data/refresh`, null, {
             headers: {
                 Authorization: token,
             },
         })
         .then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("Unauthorized. You need to login or you don't have the rights to access this page...");
-                }
-                throw new Error("Failed to fetch data");
-            }
-            return response.json();
+            // Refresh data on the front once the server is done
+            // Any error is caught in the block below
+            fetchData(); 
         })
-        .then(data => {
-            setEventData(data);
+        .catch(error => handleRequestFailure(error, setErrorMessage));
+    };
+
+    const fetchData = () => {
+        const token = getTokenOrRedirect();
+
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/data/events`, {
+            headers: {
+                Authorization: token,
+            },
         })
-        .catch(error => console.error(error));
+        .then(response => {
+            setEventData(response.data);
+        })
+        .catch(error => handleRequestFailure(error, setErrorMessage));
     };
 
     // Fetch data when component is loaded
@@ -70,9 +69,9 @@ function DataViz() {
 
     return (
         <div>
-            <div>
+            <div id="dataviz-title">
                 <h2>Data Visualization of Energy Events</h2>
-                <button onClick={handleRefresh}>Refresh Data from Octave API</button>
+                <button onClick={handleRefresh} className="padded-button">Refresh Data from Octave API</button>
             </div>
             {errorMessage && <p className="error">{errorMessage}</p>}
 

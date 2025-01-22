@@ -5,10 +5,10 @@ function Logout() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Clear localStorage and navigate to the root
+        // Clear localStorage and navigate to /
         localStorage.clear();
         navigate('/');
-    }, [navigate]); // Run this effect once on component mount
+    }, [navigate]); // Run this effect once on component load
 
     return (
         <div>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
+import SignInOrUp from './components/SignInOrUp';
 import Homepage from './components/Homepage';
 import Navbar from './components/Navbar';
 import Logout from './components/Logout';
@@ -16,8 +15,7 @@ function App() {
       <div className="center-container">
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/auth" element={<SignInOrUp />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/data" element={<DataViz />} />
       </Routes>

@@ -10,6 +10,7 @@ from src.db.database import DBManager
 from src.auth.auth_process import *
 import src.utils.data_transform as data
 import src.db.models as models
+import os
 
 
 oauth_current_user = Annotated[User, Depends(get_current_active_user)]
@@ -20,7 +21,7 @@ app = FastAPI()
 # middleware to allow requests from frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://frontend:3000"],
+    allow_origins=[os.environ["FRONTEND_URL"]],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,12 +62,7 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
-
-# todo : find a way to disconnect a user
-@app.post("/logout")
-async def logout() -> Token:
-    return Token(access_token="", token_type="bearer")
+    return Token(access_token=access_token, token_type="Bearer")
 
 
 @app.get("/users/me/", response_model=User)
@@ -74,12 +70,6 @@ async def read_users_me(
     current_user: oauth_current_user,
 ):
     return current_user
-
-@app.get("/users/me/items/")
-async def read_own_items(
-    current_user: oauth_current_user,
-):
-    return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 

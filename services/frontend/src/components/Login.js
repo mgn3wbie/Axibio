@@ -5,25 +5,37 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     const handleLogin = () => {
+        // prepare formdata as oauth2 in the backend expects it
+        // oauth2 wants a username in the payload
+        const formData = new FormData();
+        formData.append('username', email);
+        formData.append('password', password);
         // Send login request to the backend
         axios
-        .post(`${process.env.REACT_APP_BACKEND_URL}/login`, { email, password })
+        .post(`${process.env.REACT_APP_BACKEND_URL}/login`, formData)
         .then(response => {
-            setMessage(response.data.message);
-            const { email, token } = response.data;
-            localStorage.setItem('username', email);
+            const token = response.data.token_type+" "+response.data.access_token;
+            // save the token in local storage
             localStorage.setItem('token', token);
-            // Redirect to homepage using navigate
-            navigate('/'); // Replace '/' with the homepage URL if needed
+            // TODO: Replace '/' with the data page
+            navigate('/');
         })
-        .catch(error =>
-            {
-                console.error(error);
-                setMessage('Error logging in. Please try again.');
-            });
+        .catch(error => {
+            // handles everything that isnt 200->299
+            if (error.response) {
+                // Request has been sent and backend replied
+                setErrorMessage(error.response.data.detail || "Error logging in.");
+            } else if (error.request) {
+                // Request sent, but no response
+                setErrorMessage("No response from the server. Please try again.");
+            } else {
+                // Request couldnt be send
+                setErrorMessage("Unexpected error occurred. Please try again.");
+            }
+        });
         };
         // TODO: DRY up with Register
         return (
@@ -50,7 +62,7 @@ function Login() {
                         />
                     </div>
                     <button className="formButton" onClick={handleLogin}>Login</button>
-                    {message && <p>{message}</p>}
+                    {errorMessage && <p className="error">{errorMessage}</p>}
                 </div>
             </div>
         );

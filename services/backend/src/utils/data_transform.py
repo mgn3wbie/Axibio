@@ -14,7 +14,7 @@ def process_octave_response_into_dict_list(json_data):
 
 # todo : make it recursive ? 
 def turn_camel_to_snake_case_for_dicts(dict_list):
-    '''iterates over the dict_list and turns their keys into snake_case'''
+    '''iterates over the dict_list and turns their first level keys into snake_case'''
     new_dict_list = []
     for dict in dict_list:
         temp_dict = {}
@@ -24,7 +24,7 @@ def turn_camel_to_snake_case_for_dicts(dict_list):
     return new_dict_list
 
 def flatten_dict_depth(nested_dict: dict) -> dict:
-    '''flattens a dict with nested dicts to have all values at same level'''
+    '''flattens a dict with nested dicts to have all values at same level. Will remove keys for dict values'''
     new_dict = {}
     for key, value in nested_dict.items():
         if isinstance(value, dict):
@@ -32,3 +32,14 @@ def flatten_dict_depth(nested_dict: dict) -> dict:
         else:
             new_dict.update({key: value})
     return new_dict
+
+def turn_logs_into_energy_events(energy_event_logs):
+    '''takes the result of a query and turns it into a list of dict represented events'''
+    events = []
+    for id, event_data in energy_event_logs:
+
+        result = flatten_dict_depth(event_data)
+        result.update({"id": id, "name": "energy_inc"})
+        events.append(result)
+    events = turn_camel_to_snake_case_for_dicts(events)
+    return events

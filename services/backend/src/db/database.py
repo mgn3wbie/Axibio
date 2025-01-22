@@ -11,17 +11,16 @@ engine = create_engine(os.environ["DB_URL"])
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# todo : error handling
 class DBManager:
 
     # ---------------------- table creation ----------------------
-    # todo : error handling
     def create_missing_tables():
         '''generates all tables in the db (doesnt recreate existing)'''
         models.Base.metadata.create_all(bind=engine)
         session.commit()
 
     # ---------------------- creation ----------------------
-    # todo : error handling
     def add_or_update_dicts_from_model_with_ids(dicts_list, cls):
         '''takes a list of dicts and persists them to the db as the objects they represent'''
         for dict_item in dicts_list:
@@ -50,9 +49,13 @@ class DBManager:
     # ---------------------- read ----------------------
     GAIAPASS = "gaiapass"
     EVENTLOG = "eventlog"
-    # todo : error handling
-    def get_all_events_with_name(event_name):
+    def get_all_logs_with_event_name(event_name):
         query = select(models.Logs.id, models.Logs.elems).where(models.Logs.elems[DBManager.GAIAPASS][DBManager.EVENTLOG].has_key(event_name))
+        results = session.execute(query).fetchall()
+        return results
+
+    def get_all_energy_events():
+        query = select(models.Event).where(models.Event.name == "energy_inc")
         results = session.execute(query).fetchall()
         return results
 

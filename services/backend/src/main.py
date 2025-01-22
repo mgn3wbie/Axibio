@@ -12,9 +12,8 @@ import src.utils.data_transform as data
 import src.db.models as models
 import os
 
-
-oauth_current_user = Annotated[User, Depends(get_current_active_user)]
 DBManager.create_missing_tables()
+oauth_current_user = Annotated[User, Depends(get_current_active_user)]
 
 app = FastAPI()
 
@@ -72,27 +71,35 @@ async def read_users_me(
     return current_user
 
 
-
-@app.get("/fetch_data")
-async def root():
+@app.get("/data/refresh")
+async def data_refresh(
+    current_user: oauth_current_user,
+):
     response = fetch_all_events()
 
     if response.status_code == 200:
         events_list = data.process_octave_response_into_dict_list(response.json())
         events_list = data.turn_camel_to_snake_case_for_dicts(events_list)
         DBManager.add_or_update_dicts_from_model_with_ids(events_list, models.Logs)
-        
-        energy_events_results = DBManager.get_all_events_with_name("energy_inc")
-        events = []
-        for id, event_data in energy_events_results:
 
-            result = data.flatten_dict_depth(event_data)
-            result.update({"id": id, "name": "energy_inc"})
-            events.append(result)
-        events = data.turn_camel_to_snake_case_for_dicts(events)
+        energy_events_results = DBManager.get_all_logs_with_event_name("energy_inc")
+        # events = []
+        # for id, event_data in energy_events_results:
+
+        #     result = data.flatten_dict_depth(event_data)
+        #     result.update({"id": id, "name": "energy_inc"})
+        #     events.append(result)
+        # events = data.turn_camel_to_snake_case_for_dicts(events)
+        events = data.turn_logs_into_energy_events(energy_events_results)
         DBManager.add_or_update_dicts_from_model_with_ids(events, models.Event)
-
-
-        return response.json()
+        return {"message": "succesfully refreshed data"}
     else:
-        return {"error": "Failed to fetch data"}
+        return {"error": "Failed to refresh data"}
+
+# TODO: handle errors from db fetch
+@app.get("/data/events")
+async def data_events(
+    current_user: oauth_current_user,
+):
+    energy_events = DBManager.get_all_energy_events()
+    return energy_events.json()

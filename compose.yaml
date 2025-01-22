@@ -5,7 +5,7 @@ services:
     build: ./services/frontend
     container_name: octave_test_frontend
     environment:
-      REACT_APP_BACKEND_URL: "http://api:${FAST_API_CONTAINER_PORT}"
+      REACT_APP_BACKEND_URL: "http://localhost:${FAST_API_HOST_PORT}"
     ports:
       # host:container
       - ${REACT_HOST_PORT}:${REACT_CONTAINER_PORT}
@@ -21,6 +21,7 @@ services:
     build: ./services/backend
     container_name: octave_test_backend
     environment:
+      FRONTEND_URL: "http://localhost:${REACT_HOST_PORT}"
       DB_URL: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_CONTAINER_PORT}/${POSTGRES_DB}"
       API_URL: ${API_URL}
       API_AUTH_TOKEN: ${API_AUTH_TOKEN}
